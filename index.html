@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Listening Test Redirect</title>
+  <title>Listening Test Redirect — v3</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>
-    // Your AidaForm survey variants
     const surveys = [
       "https://slimsushi.aidaform.com/audio-umfrage-1",
       "https://slimsushi.aidaform.com/audio-umfrage-2",
@@ -14,38 +13,34 @@
       "https://slimsushi.aidaform.com/audio-umfrage-5"
     ];
 
-    // Pick a random URL each visit
     function pickRandom(arr) {
-      return arr[Math.floor(Math.random() * arr.length)];
+      const i = Math.floor(Math.random() * arr.length);
+      try { console.log("[redirect] n =", arr.length, "idx =", i, "url =", arr[i]); } catch(e) {}
+      return arr[i];
     }
-
-    // Build redirect URL with a small cache-busting marker
     function withMarker(url) {
       const marker = "src=router&ts=" + Date.now();
       return url + (url.includes("?") ? "&" : "?") + marker;
     }
 
-    // Perform redirect after a short tick (so we can log)
     document.addEventListener("DOMContentLoaded", () => {
       const choice = pickRandom(surveys);
       const target = withMarker(choice);
-      // Log to console for debugging
-      try { console.log("[redirect] chosen:", choice); } catch(e) {}
-      // Update visible fallback link so you can see the pick
       const a = document.getElementById("link");
       a.href = target;
       a.textContent = "Click here if you are not redirected: " + choice;
-      // Redirect
-      setTimeout(() => { window.location.replace(target); }, 50);
+      setTimeout(() => { window.location.replace(target); }, 120);
     });
   </script>
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 2rem; }
+    .v { opacity: .7 }
   </style>
 </head>
 <body>
+  <p class="v">Version: <strong>v3</strong></p>
   <p>Redirecting to the survey…</p>
   <p><a id="link" href="#">Click here if you are not redirected.</a></p>
-  <p>If you keep landing on the same variant: hard-refresh (Ctrl/Cmd+Shift+R) or try an incognito window.</p>
+  <p>If you keep landing on the same variant: hard-refresh (Ctrl/Cmd+Shift+R) or use an incognito window.</p>
 </body>
 </html>
