@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Listening Test Redirect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    // Your AidaForm survey variants
+    const surveys = [
+      "https://slimsushi.aidaform.com/audio-umfrage-1",
+      "https://slimsushi.aidaform.com/audio-umfrage-2",
+      "https://slimsushi.aidaform.com/audio-umfrage-3",
+      "https://slimsushi.aidaform.com/audio-umfrage-4",
+      "https://slimsushi.aidaform.com/audio-umfrage-5"
+    ];
+
+    // Pick a random survey index (crypto-strong)
+    function randomIndex(n) {
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+      return array[0] % n;
+    }
+
+    // Make choice sticky in the same browser (so a participant doesn’t switch versions)
+    const KEY = "vc_variant_choice";
+    let idx = Number(window.localStorage.getItem(KEY));
+    if (!Number.isInteger(idx) || idx < 0 || idx >= surveys.length) {
+      idx = randomIndex(surveys.length);
+      try { window.localStorage.setItem(KEY, String(idx)); } catch(e) {}
+    }
+
+    const target = surveys[idx];
+    // Add marker for logging (optional)
+    const redirectUrl = target + (target.includes("?") ? "&" : "?") + "src=router";
+
+    // Redirect immediately
+    window.location.replace(redirectUrl);
+  </script>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=https://slimsushi.aidaform.com/audio-umfrage-1">
+  </noscript>
+</head>
+<body>
+  <p>Redirecting to the survey… If nothing happens, 
+     <a id="fallback" href="https://slimsushi.aidaform.com/audio-umfrage-1">click here</a>.
+  </p>
+</body>
+</html>
