@@ -14,35 +14,38 @@
       "https://slimsushi.aidaform.com/audio-umfrage-5"
     ];
 
-    // Pick a random survey index (crypto-strong)
-    function randomIndex(n) {
-      const array = new Uint32Array(1);
-      crypto.getRandomValues(array);
-      return array[0] % n;
+    // Pick a random URL each visit
+    function pickRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    // Make choice sticky in the same browser (so a participant doesn’t switch versions)
-    const KEY = "vc_variant_choice";
-    let idx = Number(window.localStorage.getItem(KEY));
-    if (!Number.isInteger(idx) || idx < 0 || idx >= surveys.length) {
-      idx = randomIndex(surveys.length);
-      try { window.localStorage.setItem(KEY, String(idx)); } catch(e) {}
+    // Build redirect URL with a small cache-busting marker
+    function withMarker(url) {
+      const marker = "src=router&ts=" + Date.now();
+      return url + (url.includes("?") ? "&" : "?") + marker;
     }
 
-    const target = surveys[idx];
-    // Add marker for logging (optional)
-    const redirectUrl = target + (target.includes("?") ? "&" : "?") + "src=router";
-
-    // Redirect immediately
-    window.location.replace(redirectUrl);
+    // Perform redirect after a short tick (so we can log)
+    document.addEventListener("DOMContentLoaded", () => {
+      const choice = pickRandom(surveys);
+      const target = withMarker(choice);
+      // Log to console for debugging
+      try { console.log("[redirect] chosen:", choice); } catch(e) {}
+      // Update visible fallback link so you can see the pick
+      const a = document.getElementById("link");
+      a.href = target;
+      a.textContent = "Click here if you are not redirected: " + choice;
+      // Redirect
+      setTimeout(() => { window.location.replace(target); }, 50);
+    });
   </script>
-  <noscript>
-    <meta http-equiv="refresh" content="0; url=https://slimsushi.aidaform.com/audio-umfrage-1">
-  </noscript>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; padding: 2rem; }
+  </style>
 </head>
 <body>
-  <p>Redirecting to the survey… If nothing happens, 
-     <a id="fallback" href="https://slimsushi.aidaform.com/audio-umfrage-1">click here</a>.
-  </p>
+  <p>Redirecting to the survey…</p>
+  <p><a id="link" href="#">Click here if you are not redirected.</a></p>
+  <p>If you keep landing on the same variant: hard-refresh (Ctrl/Cmd+Shift+R) or try an incognito window.</p>
 </body>
 </html>
